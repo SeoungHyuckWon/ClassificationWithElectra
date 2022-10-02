@@ -112,7 +112,7 @@ class SentimentTestDataset(object):
 def collate_fn_style_test(samples):
     input_ids = samples
     max_len = max(len(input_id) for input_id in input_ids)
-    sorted_indices = range([len(input_ids))
+    sorted_indices = range(len(input_ids))
 
     input_ids = pad_sequence([torch.tensor(input_ids[index]) for index in sorted_indices],
                              batch_first=True)
@@ -235,28 +235,28 @@ def main():
                                           shuffle=False, collate_fn=collate_fn_style_test,
                                           num_workers=2)
     with torch.no_grad():
-    model.eval()
-    predictions = []
-    for input_ids, attention_mask, token_type_ids, position_ids in tqdm(test_loader,
-                                                                        desc='Test',
-                                                                        position=1,
-                                                                        leave=None):
-        input_ids = input_ids.to(device)
-        attention_mask = attention_mask.to(device)
-        token_type_ids = token_type_ids.to(device)
-        position_ids = position_ids.to(device)
+        model.eval()
+        predictions = []
+        for input_ids, attention_mask, token_type_ids, position_ids in tqdm(test_loader,
+                                                                            desc='Test',
+                                                                            position=1,
+                                                                            leave=None):
+            input_ids = input_ids.to(device)
+            attention_mask = attention_mask.to(device)
+            token_type_ids = token_type_ids.to(device)
+            position_ids = position_ids.to(device)
 
-        output = model(input_ids=input_ids,
-                       attention_mask=attention_mask,
-                       token_type_ids=token_type_ids,
-                       position_ids=position_ids)
+            output = model(input_ids=input_ids,
+                           attention_mask=attention_mask,
+                           token_type_ids=token_type_ids,
+                           position_ids=position_ids)
 
-        logits = output.logits
-        batch_predictions = [0 if example[0] > example[1] else 1 for example in logits]
-        predictions += batch_predictions
+            logits = output.logits
+            batch_predictions = [0 if example[0] > example[1] else 1 for example in logits]
+            predictions += batch_predictions
 
-    test_df['Category'] = predictions
-    test_df.to_csv('submission.csv', index=False)
+        test_df['Category'] = predictions
+        test_df.to_csv('submission.csv', index=False)
 
 if __name__ == '__main__':
     main()
